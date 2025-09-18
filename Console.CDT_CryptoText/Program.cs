@@ -45,9 +45,18 @@ namespace Console.CDT_CryptoText
         {
             MConsole.Clear();
 
-            CryptoText txt = "Hallo Gerhard";
+            CryptoText txt1 = "Hallo GerhardA";
+            CryptoText txt2 = "Hallo GerhardB";
 
-            string aa = txt.ToString();
+            bool result = txt1 == txt2;
+
+            string aa = txt1.ToString();
+
+            CryptoText txtDe = aa;
+
+            string bb = txtDe.ToString();
+
+            CryptoText cc = txt1;
 
             MConsole.Alert("", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
 

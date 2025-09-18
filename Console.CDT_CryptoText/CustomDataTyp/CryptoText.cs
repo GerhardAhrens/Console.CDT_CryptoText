@@ -78,8 +78,17 @@ namespace System
 
         public static implicit operator CryptoText(string value)
         {
-            string encryptString = CryptoHelperInternal.Encrypt(value);
-            return new CryptoText(encryptString);
+            if (value.EndsWith("==") == true)
+            {
+                string encryptString = CryptoHelperInternal.Decrypt(value);
+                return new CryptoText(encryptString);
+            }
+            else
+            {
+
+                string encryptString = CryptoHelperInternal.Encrypt(value);
+                return new CryptoText(encryptString);
+            }
         }
 
         public static bool operator ==(CryptoText left, CryptoText right)
