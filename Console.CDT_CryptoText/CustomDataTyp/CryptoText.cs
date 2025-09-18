@@ -78,7 +78,7 @@ namespace System
         }
 
         public static implicit operator CryptoText(string value)
-        {
+        {            
             if (value.EndsWith("==") == true)
             {
                 string encryptString = CryptoHelperInternal.Decrypt(value);
@@ -121,20 +121,7 @@ namespace System
         }
 
         #region Check Funktionen
-        public bool IsBase64String()
-        {
-            bool result = false;
-
-            if (string.IsNullOrEmpty(this.Value) || this.Value.Length % 4 != 0 || this.Value.Contains(" ") 
-                || this.Value.Contains("\t") || this.Value.Contains("\r") || this.Value.Contains("\n"))
-            {
-                return result;
-            }
-
-            Span<byte> buffer = new Span<byte>(new byte[this.Value.Length]);
-            result = Convert.TryFromBase64String(this.Value, buffer, out int bytesParsed);
-            return result;
-        }
+        /* Keine vorhanden */
         #endregion Check Funktionen
 
         public override int GetHashCode()
@@ -144,7 +131,15 @@ namespace System
             return hashCode.ToHashCode();
         }
 
-        #region Implementation of IEquatable<Base64>
+        #region Konvertierung nach To...
+        public override string ToString()
+        {
+            return this.Value.ToString();
+        }
+
+        #endregion Konvertierung nach To...
+
+        #region Implementation of IEquatable<CryptoText>
         public override bool Equals(object obj)
         {
             if ((obj is CryptoText) == false)
@@ -160,17 +155,9 @@ namespace System
         {
             return this.Value == other.Value;
         }
-        #endregion Implementation of IEquatable<Base64>
+        #endregion Implementation of IEquatable<CryptoText>
 
-        #region Konvertierung nach To...
-        public override string ToString()
-        {
-            return this.Value.ToString();
-        }
-
-        #endregion Konvertierung nach To...
-
-        #region Implementation of IComparable<Base64>
+        #region Implementation of IComparable<CryptoText>
 
         public int CompareTo(CryptoText other)
         {
@@ -178,9 +165,9 @@ namespace System
 
             return valueCompare;
         }
-        #endregion Implementation of IComparable<Base64>
+        #endregion Implementation of IComparable<CryptoText>
 
-
+        #region Implementierung Private Klassen
         private class CryptoHelperInternal
         {
             private static readonly byte[] internalKey = { 0x16, 0x15, 0x14, 0x13, 0x11, 0x10, 0x09, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
@@ -296,16 +283,31 @@ namespace System
         }
 
         /// <summary>
-        /// var symmetricEncryptDecrypt = new CryptoHelperCOREInternal();
-        /// var(Key, IVBase64) = symmetricEncryptDecrypt.InitSymmetricEncryptionKeyIV();
-        /// var encryptedText = symmetricEncryptDecrypt.Encrypt(text, IVBase64, Key);
-        /// var decryptedText = symmetricEncryptDecrypt.Decrypt(encryptedText, IVBase64, Key);
+        /// Die Klasse stellt Methoden zum Ver- und Entschlüsseln von Strings zur Verfügung. 
+        /// Optional kann auch ein variabler Key verwendet werden.
         /// </summary>
         /// <remarks>
         /// https://damienbod.com/2020/08/19/symmetric-and-asymmetric-encryption-in-net-core/
         /// </remarks>
+        /// <example>
+        /// var symmetricEncryptDecrypt = new CryptoHelperCOREInternal();
+        /// var encryptedText = symmetricEncryptDecrypt.Encrypt(value);
+        /// var decryptedText = symmetricEncryptDecrypt.Decrypt(encryptedText);
+        /// oder mit variablen Key
+        /// var symmetricEncryptDecrypt = new CryptoHelperCOREInternal();
+        /// var(Key, IVBase64) = symmetricEncryptDecrypt.InitSymmetricEncryptionKeyIV();
+        /// var encryptedText = symmetricEncryptDecrypt.Encrypt(text, IVBase64, Key);
+        /// var decryptedText = symmetricEncryptDecrypt.Decrypt(encryptedText, IVBase64, Key);
+        /// </example>
         private class CryptoHelperCOREInternal
         {
+            private readonly string key = "pAuvCpuIpALd5ZffSYV6J21CN71TGkMV+ycsbyg4zzk=";
+            private readonly string IV = "9EtXqMicyyzU/t32qlpeRA==";
+
+            /// <summary>
+            /// Erstellen eines variablen Key auf Random Basis
+            /// </summary>
+            /// <returns></returns>
             public (string Key, string IVBase64) InitSymmetricEncryptionKeyIV()
             {
                 string key = GetEncodedRandomString(32); // 256 Byte
@@ -320,6 +322,13 @@ namespace System
                 return base64;
             }
 
+            private byte[] GenerateRandomBytes(int length)
+            {
+                byte[] byteArray = new byte[length];
+                RandomNumberGenerator.Fill(byteArray);
+                return byteArray;
+            }
+
             private Aes CreateCipher(string keyBase64)
             {
                 // Default values: Keysize 256, Padding PKC27
@@ -332,11 +341,9 @@ namespace System
                 return cipher;
             }
 
-            private byte[] GenerateRandomBytes(int length)
+            public string Encrypt(string text)
             {
-                byte[] byteArray = new byte[length];
-                RandomNumberGenerator.Fill(byteArray);
-                return byteArray;
+                return Encrypt(text, IV, key);
             }
 
             public string Encrypt(string text, string IV, string key)
@@ -351,6 +358,11 @@ namespace System
                 return Convert.ToBase64String(cipherText);
             }
 
+            public string Decrypt(string text)
+            {
+                return Decrypt(text, IV, key);
+            }
+
             public string Decrypt(string encryptedText, string IV, string key)
             {
                 Aes cipher = CreateCipher(key);
@@ -363,5 +375,6 @@ namespace System
                 return Encoding.UTF8.GetString(plainBytes);
             }
         }
+        #endregion Implementierung Private Klassen
     }
 }

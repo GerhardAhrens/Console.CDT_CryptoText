@@ -45,22 +45,27 @@ namespace Console.CDT_CryptoText
         {
             MConsole.Clear();
 
-            CryptoText txt1 = "Hallo GerhardA";
-            CryptoText txt2 = "Hallo GerhardB";
+            CryptoText txt1 = "Hallo Test-A";
+            CryptoText txt2 = "Hallo Test-B";
+            MConsole.Alert($"Ursprungstext: {txt1.Value}", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
 
             bool result = txt1 == txt2;
 
             string aa = txt1.ToString();
 
+            MConsole.Alert($"Verschlüsselter Text: {aa}", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
+
             CryptoText txtDe = aa;
 
             string bb = txtDe.ToString();
 
+            MConsole.Alert($"Entschlüsselter Text: {bb}", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
+
             CryptoText cc = txt1;
             bool result2 = cc == txt1;
 
-            MConsole.Alert("", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
-
+            long hashcode1 = txt1.GetHashCode();
+            long hashcode2 = cc.GetHashCode();
 
             MConsole.Wait();
         }
