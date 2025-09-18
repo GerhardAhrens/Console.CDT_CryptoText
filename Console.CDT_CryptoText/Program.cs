@@ -57,6 +57,7 @@ namespace Console.CDT_CryptoText
             string bb = txtDe.ToString();
 
             CryptoText cc = txt1;
+            bool result2 = cc == txt1;
 
             MConsole.Alert("", "Ergebnis", ModernConsole.Message.ConsoleMessageType.Info);
 
